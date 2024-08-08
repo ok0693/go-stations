@@ -42,9 +42,11 @@ func (s *TODOService) CreateTODO(ctx context.Context, subject, description strin
 	}
 
 	var todo model.TODO
-	if err := s.db.QueryRowContext(ctx, confirm, id).Scan(&todo.ID, &todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt); err != nil {
+	if err := s.db.QueryRowContext(ctx, confirm, id).Scan(&todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt); err != nil {
 		return nil, err
 	}
+	todo.ID = id
+
 	return &todo, nil
 }
 
@@ -83,9 +85,10 @@ func (s *TODOService) UpdateTODO(ctx context.Context, id int64, subject, descrip
 	}
 
 	var todo model.TODO
-	if err := s.db.QueryRowContext(ctx, confirm, id).Scan(&todo.ID, &todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt); err != nil {
+	if err := s.db.QueryRowContext(ctx, confirm, id).Scan(&todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt); err != nil {
 		return nil, err
 	}
+	todo.ID = id
 
 	return &todo, nil
 }
