@@ -1,10 +1,12 @@
 package model
 
+import "fmt"
+
 
 type ErrNotFound struct {
-	ErrorNotFound error
+	NotFound string
 }
 
 func (e *ErrNotFound) Error() string {
-	return e.ErrorNotFound.Error()
+	return fmt.Sprintf(e.NotFound)
 }

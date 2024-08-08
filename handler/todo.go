@@ -28,7 +28,6 @@ func (h *TODOHandler) Create(ctx context.Context, req *model.CreateTODORequest) 
 		return nil, err
 	}
 
-
 	return &model.CreateTODOResponse{TODO: *todo}, nil
 }
 

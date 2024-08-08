@@ -42,10 +42,11 @@ func (s *TODOService) CreateTODO(ctx context.Context, subject, description strin
 	}
 
 	var todo model.TODO
-	if err := s.db.QueryRowContext(ctx, confirm, id).Scan(&todo.ID, &todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt); err != nil {
+	if err := s.db.QueryRowContext(ctx, confirm, id).Scan(&todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt); err != nil {
 		return nil, err
 	}
-	// todo.ID = int(id)
+	todo.ID = id
+
 	return &todo, nil
 }
 
@@ -65,8 +66,31 @@ func (s *TODOService) UpdateTODO(ctx context.Context, id int64, subject, descrip
 		update  = `UPDATE todos SET subject = ?, description = ? WHERE id = ?`
 		confirm = `SELECT subject, description, created_at, updated_at FROM todos WHERE id = ?`
 	)
+	stmt, err := s.db.PrepareContext(ctx, update)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
 
-	return nil, nil
+	res, err := stmt.ExecContext(ctx, subject, description, id)
+	if err != nil {
+		return nil, err
+	}
+
+	affectedRows, err := res.RowsAffected()
+	if err != nil {
+		return nil, err
+	} else if affectedRows == 0 {
+		return nil, &model.ErrNotFound{NotFound: "Not Found"}
+	}
+
+	var todo model.TODO
+	if err := s.db.QueryRowContext(ctx, confirm, id).Scan(&todo.Subject, &todo.Description, &todo.CreatedAt, &todo.UpdatedAt); err != nil {
+		return nil, err
+	}
+	todo.ID = id
+
+	return &todo, nil
 }
 
 // DeleteTODO deletes TODOs on DB by ids.
